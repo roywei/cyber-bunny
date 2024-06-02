@@ -64,6 +64,7 @@ const Chat = ({
   const [messages, setMessages] = useState([]);
   const [inputDisabled, setInputDisabled] = useState(false);
   const [threadId, setThreadId] = useState("");
+  const [sendCameraView, setSendCameraView] = useState(false);
 
   // automatically scroll to bottom of chat
   const messagesEndRef = useRef<HTMLDivElement | null>(null);
@@ -87,12 +88,26 @@ const Chat = ({
   }, []);
 
   const sendMessage = async (text) => {
+    // get file id from api capture
+    const capture = await fetch(`/api/capture`);
+    const fileId = await capture.text();
+    console.log("send message using file id", fileId);
     const response = await fetch(
       `/api/assistants/threads/${threadId}/messages`,
       {
         method: "POST",
         body: JSON.stringify({
-          content: text,
+          content: [{
+            type: "text",
+            text: text,
+          },
+          {
+            type: "image_file",
+            image_file: {
+              file_id: fileId,
+            },
+          },
+          ],
         }),
       }
     );
@@ -118,7 +133,7 @@ const Chat = ({
     handleReadableStream(stream);
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
     if (!userInput.trim()) return;
     sendMessage(userInput);
@@ -176,6 +191,10 @@ const Chat = ({
     const toolCallOutputs = await Promise.all(
       toolCalls.map(async (toolCall) => {
         const result = await functionCallHandler(toolCall);
+        if (toolCall.function.name === "capture") { 
+            console.log("capture function called");
+            setSendCameraView(true);
+        }
         return { output: result, tool_call_id: toolCall.id };
       })
     );
@@ -204,7 +223,12 @@ const Chat = ({
     stream.on("event", (event) => {
       if (event.event === "thread.run.requires_action")
         handleRequiresAction(event);
-      if (event.event === "thread.run.completed") handleRunCompleted();
+      if (event.event === "thread.run.completed") {handleRunCompleted();
+        if (sendCameraView) {
+          setSendCameraView(false);
+          sendMessage("here is the camera view");
+        }
+      }
     });
   };
 
@@ -245,7 +269,6 @@ const Chat = ({
       })
       return [...prevMessages.slice(0, -1), updatedLastMessage];
     });
-    
   }
 
   return (

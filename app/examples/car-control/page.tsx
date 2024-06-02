@@ -5,15 +5,18 @@ import Chat from "../../components/chat";
 import CameraFeed from '../../components/camera-feed';
 import ControlPad from '../../components/control-pad';
 import styles from './page.module.css';
-import { handleMoveForward, handleMoveBackward, handleTurnLeft, handleTurnRight, handleStop } from '../../utils/car-control';
+import { handleMoveForward, handleMoveBackward, handleTurnLeft, handleTurnRight, handleStop, handleCapture } from '../../utils/car-control';
 
 const CarControlPage = () => {
+
   const functionCallHandler = async (call) => {
-    const { function: { name }, arguments: args } = call;
     let result;
     
     try {
+      const args = call.function.arguments;
+      const name = call.function.name;
       const parsedArgs = args ? JSON.parse(args) : {};
+
       switch (name) {
         case "move_forward":
           result = await handleMoveForward(parsedArgs);
@@ -29,6 +32,9 @@ const CarControlPage = () => {
           break;
         case "stop":
           result = await handleStop();
+          break;
+        case "capture":
+          result = await handleCapture();
           break;
         default:
           result = { error: "Unknown function" };

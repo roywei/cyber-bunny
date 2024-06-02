@@ -52,4 +52,8 @@ async function handleMoveForward(args) {
     return await response.json();
   }
 
-  export { handleMoveForward, handleMoveBackward, handleTurnLeft, handleTurnRight, handleStop}
+  async function handleCapture() {
+    return "user will send a camera view image in next message, please stop function call, wait for user input and continue your goal."
+  }
+
+  export { handleMoveForward, handleMoveBackward, handleTurnLeft, handleTurnRight, handleStop, handleCapture}
