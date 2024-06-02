@@ -1,5 +1,6 @@
 async function handleMoveForward(args) {
-    const response = await fetch("http://192.168.86.48:5000/move_forward", {
+    console.log("url is ", process.env.NEXT_PUBLIC_SERVER_URL)
+    const response = await fetch(`${process.env.NEXT_PUBLIC_SERVER_URL}/move_forward`, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
@@ -10,7 +11,7 @@ async function handleMoveForward(args) {
   }
   
   async function handleMoveBackward(args) {
-    const response = await fetch("http://192.168.86.48:5000/move_backward", {
+    const response = await fetch(`${process.env.NEXT_PUBLIC_SERVER_URL}/move_backward`, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
@@ -21,7 +22,7 @@ async function handleMoveForward(args) {
   }
   
   async function handleTurnLeft(args) {
-    const response = await fetch("http://192.168.86.48:5000/turn_left", {
+    const response = await fetch(`${process.env.NEXT_PUBLIC_SERVER_URL}/turn_left`, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
@@ -32,7 +33,7 @@ async function handleMoveForward(args) {
   }
   
   async function handleTurnRight(args) {
-    const response = await fetch("http://192.168.86.48:5000/turn_right", {
+    const response = await fetch(`${process.env.NEXT_PUBLIC_SERVER_URL}/turn_right`, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
@@ -43,7 +44,7 @@ async function handleMoveForward(args) {
   }
   
   async function handleStop() {
-    const response = await fetch("http://192.168.86.48:5000/stop", {
+    const response = await fetch(`${process.env.NEXT_PUBLIC_SERVER_URL}/stop`, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",

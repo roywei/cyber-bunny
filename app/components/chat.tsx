@@ -7,6 +7,7 @@ import Markdown from "react-markdown";
 // @ts-expect-error - no types for this yet
 import { AssistantStreamEvent } from "openai/resources/beta/assistants/assistants";
 import { RequiredActionFunctionToolCall } from "openai/resources/beta/threads/runs/runs";
+import { AudioRecorder } from 'react-audio-voice-recorder';
 
 type MessageProps = {
   role: "user" | "assistant" | "code";
@@ -74,6 +75,27 @@ const Chat = ({
   useEffect(() => {
     scrollToBottom();
   }, [messages]);
+
+
+  const whisperRequest = async (audioFile: Blob) => {
+    const formData = new FormData();
+    formData.append('file', audioFile, 'audio.wav');
+    console.log("got audio file," , audioFile)
+    try {
+      const response = await fetch('/api/whisper', {
+        method: 'POST',
+        body: formData,
+      });
+      const { text, error } = await response.json();
+      if (response.ok) {
+        console.log('text:', text);
+      } else {
+        console.log('Error:', error);
+      }
+    } catch (error) {
+      console.log('Error:', error);
+    }
+  };
 
   // create a new threadID when chat component created
   useEffect(() => {
@@ -297,6 +319,7 @@ const Chat = ({
         >
           Send
         </button>
+        <AudioRecorder onRecordingComplete={(audioBlob) => whisperRequest(audioBlob)}/>
       </form>
     </div>
   );

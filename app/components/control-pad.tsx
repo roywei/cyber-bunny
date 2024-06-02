@@ -6,7 +6,7 @@ import styles from './control-pad.module.css';
 const ControlPad = () => {
     const sendCommand = async (command: string) => {
         try {
-            const response = await fetch(`http://192.168.86.48:5000/${command}`, {
+            const response = await fetch(`${process.env.NEXT_PUBLIC_SERVER_URL}/${command}`, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
