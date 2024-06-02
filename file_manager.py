@@ -55,10 +55,10 @@ def delete_all_files():
         print("Operation cancelled.")
 
 # delete all files with given name
-def delete_files_by_name(name):
+def delete_files_by_prefix(prefix):
     response = client.files.list(purpose="assistants")
     for file in response.data:
-        if file.filename == name:
+        if file.filename.startswith(prefix):
             client.files.delete(file.id)
             print(f"File deleted: {file.filename}")
 
@@ -79,7 +79,7 @@ def main():
         print("[2] List all files")
         print("[3] List all and delete one of your choice")
         print("[4] Delete all assistant files (confirmation required)")
-        print("[5] Delete all assistant files with given name")
+        print("[5] Delete all assistant files with prefix")
         print("[6] Download file with prefix")
         print("[9] Exit")
         choice = input("Enter your choice: ")
@@ -93,8 +93,8 @@ def main():
         elif choice == "4":
             delete_all_files()
         elif choice == "5":
-            name = input("Enter the name of the file you want to delete: ")
-            delete_files_by_name(name)
+            prefix = input("Enter the prefix of the file you want to delete: ")
+            delete_files_by_prefix(prefix)
         elif choice == "6":
             prefix = input("Enter the prefix of the file you want to download: ")
             download_file_with_prefix(prefix)
