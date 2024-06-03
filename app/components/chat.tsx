@@ -98,6 +98,7 @@ const Chat = ({
   const [inputDisabled, setInputDisabled] = useState(false);
   const [threadId, setThreadId] = useState("");
   const [sendCameraView, setSendCameraView] = useState(false);
+  const [autoPlay, setAutoPlay] = useState(false);
 
   // automatically scroll to bottom of chat
   const messagesEndRef = useRef<HTMLDivElement | null>(null);
@@ -256,6 +257,7 @@ const Chat = ({
   // handleRunCompleted - re-enable the input form
   const handleRunCompleted = () => {
     setInputDisabled(false);
+    console.log("run completed");
   };
 
   const handleReadableStream = (stream: AssistantStream) => {
@@ -272,15 +274,27 @@ const Chat = ({
 
     // events without helpers yet (e.g. requires_action and run.done)
     stream.on("event", (event) => {
-      if (event.event === "thread.run.requires_action")
+      if (!event) {
+        console.error("Received undefined event");
+        return;
+      }
+      if (event.event === "thread.run.requires_action") {
         handleRequiresAction(event);
+      }
       if (event.event === "thread.run.completed") {
         handleRunCompleted();
-        if (sendCameraView) {
-          setSendCameraView(false);
-          sendMessage("here is the camera view");
-        }
       }
+    });
+
+    //wait for stream end and log last message
+    stream.on("end", () => {
+      console.log("stream ended");
+      console.log("last message", messages[messages.length - 1]);
+      console.log("send camera view", sendCameraView);
+      // if (sendCameraView) {
+      //   setSendCameraView(false);
+      //   setUserInput("here is the camera view");
+      // }
     });
   };
 
@@ -325,6 +339,15 @@ const Chat = ({
 
   return (
     <div className={styles.chatContainer}>
+      {/* <div className={styles.toggleContainer}>
+        <label htmlFor="autoPlayToggle">Auto Play Sound</label>
+        <input
+          type="checkbox"
+          id="autoPlayToggle"
+          checked={autoPlay}
+          onChange={(e) => setAutoPlay(e.target.checked)}
+        />
+      </div> */}
       <div className={styles.messages}>
         {messages.map((msg, index) => (
           <Message key={index} role={msg.role} text={msg.text} />

@@ -6,6 +6,7 @@ export async function POST(request) {
   try {
     const formData = await request.formData();
     const text = formData.get("text");
+    console.log("calling tts for text: ", text);
     const mp3 = await openai.audio.speech.create({
       model: "tts-1",
       voice: "alloy",
