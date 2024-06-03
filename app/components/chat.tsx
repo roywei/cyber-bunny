@@ -8,6 +8,7 @@ import Markdown from "react-markdown";
 import { AssistantStreamEvent } from "openai/resources/beta/assistants/assistants";
 import { RequiredActionFunctionToolCall } from "openai/resources/beta/threads/runs/runs";
 import { AudioRecorder } from 'react-audio-voice-recorder';
+import { send } from "process";
 
 type MessageProps = {
   role: "user" | "assistant" | "code";
@@ -86,14 +87,17 @@ const Chat = ({
         method: 'POST',
         body: formData,
       });
-      const { text, error } = await response.json();
-      if (response.ok) {
-        console.log('text:', text);
-      } else {
-        console.log('Error:', error);
-      }
+      const data = await response.json();
+      console.log("whisper response is:", data.text);
+      sendMessage(data.text);
+      setMessages((prevMessages) => [
+        ...prevMessages,
+        { role: "user", text: data.text },
+      ]);
+      setUserInput("");
+      setInputDisabled(true);
     } catch (error) {
-      console.log('Error:', error);
+      console.error('Error:', error);
     }
   };
 
