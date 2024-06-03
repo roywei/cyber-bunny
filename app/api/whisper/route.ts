@@ -9,7 +9,7 @@ export async function POST(request) {
   const transcription = await openai.audio.transcriptions.create({
     file: file,
     model: "whisper-1",
-    prompt: "Use simplified chinese if applicable.",
+    prompt: "Use simplified chinese first.",
   });
   console.log("translation: ", transcription.text);
   return Response.json(transcription); // Wrap the result in a Response object

@@ -119,13 +119,7 @@ const Chat = ({
       });
       const data = await response.json();
       console.log("whisper response is:", data.text);
-      sendMessage(data.text);
-      setMessages((prevMessages) => [
-        ...prevMessages,
-        { role: "user", text: data.text },
-      ]);
-      setUserInput("");
-      setInputDisabled(true);
+      setUserInput(data.text);
     } catch (error) {
       console.error("Error:", error);
     }
