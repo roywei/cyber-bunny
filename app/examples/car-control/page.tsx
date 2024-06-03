@@ -1,17 +1,23 @@
 "use client";
 
-import React from 'react';
+import React from "react";
 import Chat from "../../components/chat";
-import CameraFeed from '../../components/camera-feed';
-import ControlPad from '../../components/control-pad';
-import styles from './page.module.css';
-import { handleMoveForward, handleMoveBackward, handleTurnLeft, handleTurnRight, handleStop, handleCapture } from '../../utils/car-control';
+import CameraFeed from "../../components/camera-feed";
+import ControlPad from "../../components/control-pad";
+import styles from "./page.module.css";
+import {
+  handleMoveForward,
+  handleMoveBackward,
+  handleTurnLeft,
+  handleTurnRight,
+  handleStop,
+  handleCapture,
+} from "../../utils/car-control";
 
 const CarControlPage = () => {
-
   const functionCallHandler = async (call) => {
     let result;
-    
+
     try {
       const args = call.function.arguments;
       const name = call.function.name;
@@ -40,7 +46,7 @@ const CarControlPage = () => {
           result = { error: "Unknown function" };
       }
     } catch (error) {
-      console.error('Error handling function call:', error);
+      console.error("Error handling function call:", error);
       result = { error: error.message };
     }
 
@@ -56,7 +62,7 @@ const CarControlPage = () => {
         </div>
         <div className={styles.chatContainer}>
           <div className={styles.chat}>
-            <Chat functionCallHandler={functionCallHandler}/>
+            <Chat functionCallHandler={functionCallHandler} />
           </div>
         </div>
       </div>

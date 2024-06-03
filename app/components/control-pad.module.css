@@ -1,40 +1,41 @@
 .controlPad {
-    display: grid;
-    grid-template-rows: repeat(3, 1fr);
-    gap: 10px;
-    justify-items: center;
-    align-items: center;
+  display: grid;
+  grid-template-rows: repeat(3, 1fr);
+  gap: 10px;
+  justify-items: center;
+  align-items: center;
 }
 
 .row {
-    display: flex;
-    gap: 10px;
-    justify-content: center;
+  display: flex;
+  gap: 10px;
+  justify-content: center;
 }
 
-.button, .stopButton {
-    background-color: #f0f0f0;
-    border: none;
-    padding: 15px 20px; /* Adjust padding for compactness */
-    text-align: center;
-    font-size: 14px; /* Adjust font size if needed */
-    border-radius: 8px;
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-    cursor: pointer;
-    transition: background-color 0.3s ease;
-    width: 100px; /* Ensure all buttons are the same size */
-    height: 100px;
+.button,
+.stopButton {
+  background-color: #f0f0f0;
+  border: none;
+  padding: 15px 20px; /* Adjust padding for compactness */
+  text-align: center;
+  font-size: 14px; /* Adjust font size if needed */
+  border-radius: 8px;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+  width: 100px; /* Ensure all buttons are the same size */
+  height: 100px;
 }
 
 .button:hover {
-    background-color: #e0e0e0;
+  background-color: #e0e0e0;
 }
 
 .stopButton {
-    background-color: #ff4d4d;
-    height: 100px;
+  background-color: #ff4d4d;
+  height: 100px;
 }
 
 .stopButton:hover {
-    background-color: #ff1a1a;
+  background-color: #ff1a1a;
 }

@@ -7,8 +7,8 @@ import Markdown from "react-markdown";
 // @ts-expect-error - no types for this yet
 import { AssistantStreamEvent } from "openai/resources/beta/assistants/assistants";
 import { RequiredActionFunctionToolCall } from "openai/resources/beta/threads/runs/runs";
-import { AudioRecorder } from 'react-audio-voice-recorder';
-import { send } from "process";
+import { AudioRecorder } from "react-audio-voice-recorder";
+import { HiMiniSpeakerWave } from "react-icons/hi2";
 
 type MessageProps = {
   role: "user" | "assistant" | "code";
@@ -41,11 +41,42 @@ const CodeMessage = ({ text }: { text: string }) => {
 };
 
 const Message = ({ role, text }: MessageProps) => {
+  const handleSpeak = async () => {
+    console.log("speak", text);
+    try {
+      const formData = new FormData();
+      formData.append("text", text);
+      const response = await fetch("/api/tts", {
+        method: "POST",
+        body: formData,
+      });
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+      const arrayBuffer = await response.arrayBuffer();
+      const blob = new Blob([arrayBuffer], { type: "audio/mpeg" });
+      const url = URL.createObjectURL(blob);
+      const audio = new Audio(url);
+      audio.play();
+      // Cleanup URL object after audio is played
+      audio.onended = () => {
+        URL.revokeObjectURL(url);
+      };
+    } catch (error) {
+      console.error("Failed to fetch and play the audio:", error);
+    }
+  };
+
   switch (role) {
     case "user":
       return <UserMessage text={text} />;
     case "assistant":
-      return <AssistantMessage text={text} />;
+      return (
+        <div>
+          <AssistantMessage text={text} />
+          <HiMiniSpeakerWave onClick={handleSpeak} />
+        </div>
+      );
     case "code":
       return <CodeMessage text={text} />;
     default:
@@ -55,7 +86,7 @@ const Message = ({ role, text }: MessageProps) => {
 
 type ChatProps = {
   functionCallHandler?: (
-    toolCall: RequiredActionFunctionToolCall
+    toolCall: RequiredActionFunctionToolCall,
   ) => Promise<string>;
 };
 
@@ -77,14 +108,13 @@ const Chat = ({
     scrollToBottom();
   }, [messages]);
 
-
   const whisperRequest = async (audioFile: Blob) => {
     const formData = new FormData();
-    formData.append('file', audioFile, 'audio.wav');
-    console.log("got audio file," , audioFile)
+    formData.append("file", audioFile, "audio.wav");
+    console.log("got audio file,", audioFile);
     try {
-      const response = await fetch('/api/whisper', {
-        method: 'POST',
+      const response = await fetch("/api/whisper", {
+        method: "POST",
         body: formData,
       });
       const data = await response.json();
@@ -97,7 +127,7 @@ const Chat = ({
       setUserInput("");
       setInputDisabled(true);
     } catch (error) {
-      console.error('Error:', error);
+      console.error("Error:", error);
     }
   };
 
@@ -123,19 +153,20 @@ const Chat = ({
       {
         method: "POST",
         body: JSON.stringify({
-          content: [{
-            type: "text",
-            text: text,
-          },
-          {
-            type: "image_file",
-            image_file: {
-              file_id: fileId,
+          content: [
+            {
+              type: "text",
+              text: text,
             },
-          },
+            {
+              type: "image_file",
+              image_file: {
+                file_id: fileId,
+              },
+            },
           ],
         }),
-      }
+      },
     );
     const stream = AssistantStream.fromReadableStream(response.body);
     handleReadableStream(stream);
@@ -153,7 +184,7 @@ const Chat = ({
           runId: runId,
           toolCallOutputs: toolCallOutputs,
         }),
-      }
+      },
     );
     const stream = AssistantStream.fromReadableStream(response.body);
     handleReadableStream(stream);
@@ -183,7 +214,7 @@ const Chat = ({
   const handleTextDelta = (delta) => {
     if (delta.value != null) {
       appendToLastMessage(delta.value);
-    };
+    }
     if (delta.annotations != null) {
       annotateLastMessage(delta.annotations);
     }
@@ -192,7 +223,7 @@ const Chat = ({
   // imageFileDone - show image in chat
   const handleImageFileDone = (image) => {
     appendToLastMessage(`\n![${image.file_id}](/api/files/${image.file_id})\n`);
-  }
+  };
 
   // toolCallCreated - log new tool call
   const toolCallCreated = (toolCall) => {
@@ -209,7 +240,7 @@ const Chat = ({
 
   // handleRequiresAction - handle function call
   const handleRequiresAction = async (
-    event: AssistantStreamEvent.ThreadRunRequiresAction
+    event: AssistantStreamEvent.ThreadRunRequiresAction,
   ) => {
     const runId = event.data.id;
     const toolCalls = event.data.required_action.submit_tool_outputs.tool_calls;
@@ -217,12 +248,12 @@ const Chat = ({
     const toolCallOutputs = await Promise.all(
       toolCalls.map(async (toolCall) => {
         const result = await functionCallHandler(toolCall);
-        if (toolCall.function.name === "capture") { 
-            console.log("capture function called");
-            setSendCameraView(true);
+        if (toolCall.function.name === "capture") {
+          console.log("capture function called");
+          setSendCameraView(true);
         }
         return { output: result, tool_call_id: toolCall.id };
-      })
+      }),
     );
     setInputDisabled(true);
     submitActionResult(runId, toolCallOutputs);
@@ -249,7 +280,8 @@ const Chat = ({
     stream.on("event", (event) => {
       if (event.event === "thread.run.requires_action")
         handleRequiresAction(event);
-      if (event.event === "thread.run.completed") {handleRunCompleted();
+      if (event.event === "thread.run.completed") {
+        handleRunCompleted();
         if (sendCameraView) {
           setSendCameraView(false);
           sendMessage("here is the camera view");
@@ -286,16 +318,16 @@ const Chat = ({
         ...lastMessage,
       };
       annotations.forEach((annotation) => {
-        if (annotation.type === 'file_path') {
+        if (annotation.type === "file_path") {
           updatedLastMessage.text = updatedLastMessage.text.replaceAll(
             annotation.text,
-            `/api/files/${annotation.file_path.file_id}`
+            `/api/files/${annotation.file_path.file_id}`,
           );
         }
-      })
+      });
       return [...prevMessages.slice(0, -1), updatedLastMessage];
     });
-  }
+  };
 
   return (
     <div className={styles.chatContainer}>
@@ -323,7 +355,10 @@ const Chat = ({
         >
           Send
         </button>
-        <AudioRecorder onRecordingComplete={(audioBlob) => whisperRequest(audioBlob)}/>
+        <AudioRecorder
+          showVisualizer
+          onRecordingComplete={(audioBlob) => whisperRequest(audioBlob)}
+        />
       </form>
     </div>
   );

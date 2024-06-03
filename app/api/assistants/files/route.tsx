@@ -30,14 +30,14 @@ export async function GET() {
       const fileDetails = await openai.files.retrieve(file.id);
       const vectorFileDetails = await openai.beta.vectorStores.files.retrieve(
         vectorStoreId,
-        file.id
+        file.id,
       );
       return {
         file_id: file.id,
         filename: fileDetails.filename,
         status: vectorFileDetails.status,
       };
-    })
+    }),
   );
   return Response.json(filesArray);
 }
