@@ -1,4 +1,4 @@
-# CyberBunny
+# CyberBunny 🤖🐰🏎️
 
 A robot toy connected to gpt4o API. Made from Nvidia Jetson Nano (Jetbot Kit) and Xiaomi Bunny.
 
@@ -8,6 +8,10 @@ Code modified from [assistant quickstart repo](https://github.com/openai/openai-
 ![screenshot](./screenshot.png)
 
 ### Demo
+
+
+https://github.com/roywei/openai-assistants-quickstart/assets/8022184/c9d01e0e-25c8-42ad-beeb-6c994361785b
+
 
 
 ### Setup
