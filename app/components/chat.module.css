@@ -3,6 +3,7 @@
   flex-direction: column-reverse;
   height: 100%;
   width: 100%;
+  font-family: Arial, sans-serif;
 }
 
 .inputForm {
@@ -21,6 +22,7 @@
   border: 2px solid transparent;
   font-size: 1em;
   background-color: #efefef;
+  font-family: Arial, sans-serif;
 }
 
 .input:focus {
@@ -36,6 +38,7 @@
   border: none;
   font-size: 1em;
   border-radius: 60px; /* Removed duplicate border-radius property */
+  font-family: Arial, sans-serif;
 }
 
 .button:disabled {
@@ -93,4 +96,65 @@
 .codeMessage span {
   color: #b8b8b8;
   margin-right: 8px;
+}
+
+.toggleContainer {
+  display: flex;
+  align-items: center;
+  margin-bottom: 10px;
+}
+
+.toggleLabel {
+  display: flex;
+  align-items: center;
+  cursor: pointer;
+  font-size: 14px;
+  color: #333;
+  font-family: Arial, sans-serif;
+}
+
+.toggleSwitch {
+  position: relative;
+  display: inline-block;
+  width: 40px;
+  height: 20px;
+  margin-left: 10px;
+}
+
+.toggleInput {
+  opacity: 0;
+  width: 0;
+  height: 0;
+}
+
+.toggleSlider {
+  position: absolute;
+  cursor: pointer;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: #ccc;
+  transition: .4s;
+  border-radius: 20px;
+}
+
+.toggleSlider:before {
+  position: absolute;
+  content: "";
+  height: 16px;
+  width: 16px;
+  left: 2px;
+  bottom: 2px;
+  background-color: white;
+  transition: .4s;
+  border-radius: 50%;
+}
+
+.toggleInput:checked + .toggleSlider {
+  background-color: #2196F3;
+}
+
+.toggleInput:checked + .toggleSlider:before {
+  transform: translateX(20px);
 }

@@ -98,7 +98,9 @@ const Chat = ({
   const [inputDisabled, setInputDisabled] = useState(false);
   const [threadId, setThreadId] = useState("");
   const [sendCameraView, setSendCameraView] = useState(false);
-  const [autoPlay, setAutoPlay] = useState(false);
+  const [autoPlay, setAutoPlay] = useState(true);
+  const [finalMessage, setFinalMessage] = useState("");
+  const messageRef = useRef("");
 
   // automatically scroll to bottom of chat
   const messagesEndRef = useRef<HTMLDivElement | null>(null);
@@ -203,12 +205,15 @@ const Chat = ({
   // textCreated - create new assistant message
   const handleTextCreated = () => {
     appendMessage("assistant", "");
+    messageRef.current = "";
   };
 
   // textDelta - append text to last assistant message
   const handleTextDelta = (delta) => {
     if (delta.value != null) {
       appendToLastMessage(delta.value);
+      messageRef.current += delta.value;
+      console.log("Accumulated message:", messageRef.current);
     }
     if (delta.annotations != null) {
       annotateLastMessage(delta.annotations);
@@ -258,6 +263,38 @@ const Chat = ({
   const handleRunCompleted = () => {
     setInputDisabled(false);
     console.log("run completed");
+    console.log("Auto play:", autoPlay);
+    console.log("Final accumulated message:", messageRef.current);
+    if (autoPlay && messageRef.current.trim()) {
+      console.log("Attempting to play audio");
+      handleTextToSpeech(messageRef.current);
+    }
+    messageRef.current = ""; // Reset for the next message
+  };
+
+  const handleTextToSpeech = async (text) => {
+    console.log("handleTextToSpeech called with:", text);
+    try {
+      const formData = new FormData();
+      formData.append("text", text);
+      const response = await fetch("/api/tts", {
+        method: "POST",
+        body: formData,
+      });
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+      const arrayBuffer = await response.arrayBuffer();
+      const blob = new Blob([arrayBuffer], { type: "audio/mpeg" });
+      const url = URL.createObjectURL(blob);
+      const audio = new Audio(url);
+      audio.play();
+      audio.onended = () => {
+        URL.revokeObjectURL(url);
+      };
+    } catch (error) {
+      console.error("Failed to fetch and play the audio:", error);
+    }
   };
 
   const handleReadableStream = (stream: AssistantStream) => {
@@ -337,17 +374,29 @@ const Chat = ({
     });
   };
 
+  useEffect(() => {
+    console.log("Component re-rendered. Current message ref:", messageRef.current);
+  }, [messageRef.current]);
+
   return (
     <div className={styles.chatContainer}>
-      {/* <div className={styles.toggleContainer}>
-        <label htmlFor="autoPlayToggle">Auto Play Sound</label>
-        <input
-          type="checkbox"
-          id="autoPlayToggle"
-          checked={autoPlay}
-          onChange={(e) => setAutoPlay(e.target.checked)}
-        />
-      </div> */}
+      <div className={styles.chatHeader}>
+        <div className={styles.toggleContainer}>
+          <label htmlFor="autoPlayToggle" className={styles.toggleLabel}>
+            Auto Play Sound
+            <div className={styles.toggleSwitch}>
+              <input
+                type="checkbox"
+                id="autoPlayToggle"
+                checked={autoPlay}
+                onChange={(e) => setAutoPlay(e.target.checked)}
+                className={styles.toggleInput}
+              />
+              <span className={styles.toggleSlider}></span>
+            </div>
+          </label>
+        </div>
+      </div>
       <div className={styles.messages}>
         {messages.map((msg, index) => (
           <Message key={index} role={msg.role} text={msg.text} />
